@@ -2,6 +2,7 @@ import datetime
 
 from config import logger, engine_kwargs, robot_name
 from utils.check_if_excel_good import get_last_excel
+from utils.check_invoice_in_db import check_invoice_in_db
 from utils.create_infotable_excel import create_infotable_excel
 
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, MetaData, Table, Date, Boolean, select
@@ -47,18 +48,20 @@ if __name__ == '__main__':
     Session.configure(bind=engine)
     session = Session()
 
-    # session.add(Table(
-    #     date_created=datetime.datetime.now(),
-    #     file_path='kek1.xlsx',
-    #     id_invoice='KEKUS',
-    #     reason_invoice='LOOL',
-    #     supplier_name='DEALER'
-    # ))
-    # session.commit()
+    # select_query = session.query(Table).all()
+    #
+    # for a in select_query:
+    #     print(a.file_path)
 
-    select_query = session.query(Table).all()
+    keys = check_invoice_in_db(r'C:\Users\Abdykarim.D\Documents\2023-09-07_ismet.xlsx')
 
-    for a in select_query:
-        print(a.file_path)
-
+    for val in keys:
+        session.add(Table(
+            date_created=datetime.datetime.now(),
+            file_path=val,
+            id_invoice='KEKUS',
+            reason_invoice='LOOL',
+            supplier_name='DEALER'
+        ))
+    session.commit()
 
