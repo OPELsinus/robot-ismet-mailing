@@ -72,44 +72,27 @@ def check_invoice_in_db(excel_file: str):
 
     # * Getting all rows with status 'Отклонён'
 
-    book = load_workbook(os.path.join(main_folder, excel_file))
-    sheet = book.active
-
-    invoices = []
-
-    for row in range(2, sheet.max_row):
-
-        if sheet[f'A{row}'].value is None:
-            break
-
-        if sheet[f'D{row}'].value != 'Отклонён':
-            continue
-
-        # print(sheet[f'A{row}'].value)
-
-        invoices.append(sheet[f'A{row}'].value)
-
-    # * Fetching all nubmer invoices from the db
-
     from_date = datetime.date(2023, 10, 23)
-    condition = IsmetTable.DATE_INVOICE >= from_date
-
-    condition1 = IsmetTable.ID_INVOICE.in_(invoices)
+    condition = IsmetTable.edit_time >= from_date
 
     select_query = (
         session_ismet.query(IsmetTable)
-        .filter(condition1)
-        .filter(IsmetTable.NUMBER_INVOICE.isnot(None))
+        .filter(condition)
+        .filter(IsmetTable.NUMBER_INVOICE.like('!%'))
         .all()
     )
+
+    # * Fetching all number invoices from the db
+
     invoices = dict()
     for ind, row in enumerate(select_query):
         if row.ID_INVOICE not in list(invoices.keys()):
-            try:
-                _ = int(row.NUMBER_INVOICE)
-            except:
-                invoices.update({row.ID_INVOICE: [row.NUMBER_INVOICE, row.C_NAME_SOURCE_INVOICE, row.DATE_INVOICE]})
+
+            invoices.update({row.ID_INVOICE: [row.NUMBER_INVOICE, row.C_NAME_SOURCE_INVOICE, row.DATE_INVOICE]})
             # print(a.ID_INVOICE, a.NUMBER_INVOICE, a.DATE_INVOICE, sep=' | ')
+
+    for key, val in invoices.items():
+        print(key, val)
 
     # * Creating new Excel from rows with status 'Отклонён'
 
