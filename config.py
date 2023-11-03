@@ -75,6 +75,7 @@ config_path = local_path.joinpath(f'.agent\\{robot_name}\\config.json')
 config_data = json_read(config_path)
 chat_id = config_data['chat_id']
 main_folder = config_data['main_folder']
+mapping_file = config_data['mapping_file']
 
 ip_address = socket.gethostbyname(socket.gethostname())
 

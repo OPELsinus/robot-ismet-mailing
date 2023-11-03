@@ -67,7 +67,7 @@ class Sprut(App):
             "visible_only": True, "enabled_only": True, "found_index": 0
         }).type_keys('~', clear=False)
         self.parent_switch({
-            "title_re": f"^.*{value}.*$", "class_name": "Treport_frm_main", "control_type": "Window",
+            "title_re": f"^.*{value}.*$", "class_name": "Tperson_fm_Main", "control_type": "Window",
             "visible_only": True, "enabled_only": True, "found_index": 0, "parent": None
         })
 

@@ -1,6 +1,7 @@
 import os
 
 import numpy
+import pandas as pd
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import PatternFill, Font, Alignment
 
@@ -9,24 +10,15 @@ from config import main_folder
 
 def create_infotable_excel(excel_file: str):
 
-    book = load_workbook(os.path.join(main_folder, excel_file))
+    df = pd.read_excel(excel_file)
 
-    sheet = book.active
+    print(df['Поставщик'].unique())
 
-    suppliers, count = dict(), 0
+    suppliers = dict()
 
-    for row in range(2, sheet.max_row):
-        # print(sheet[f'C{row}'].value)
-        if sheet[f'D{row}'].value == 'Отклонён':
-            if sheet[f'C{row}'].value in suppliers:
-                suppliers.update({sheet[f'C{row}'].value: suppliers.get(sheet[f'C{row}'].value) + 1})
-            else:
-                suppliers.update({sheet[f'C{row}'].value: 1})
-
-        if sheet[f'C{row}'].value is None:
-            break
-
-    print(suppliers)
+    for supplier in df['Поставщик'].unique():
+        print(supplier, len(df[df['Поставщик'] == supplier]))
+        suppliers.update({supplier: len(df[df['Поставщик'] == supplier])})
 
     book = Workbook()
     sheet = book.active
@@ -57,6 +49,6 @@ def create_infotable_excel(excel_file: str):
     sheet[f'A{len(suppliers) + 2}'].fill = fill_color
     sheet[f'B{len(suppliers) + 2}'].fill = fill_color
 
-    book.save('sfsd.xlsx')
+    book.save('Infotable.xlsx')
 
 

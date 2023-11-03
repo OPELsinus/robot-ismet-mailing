@@ -44,8 +44,7 @@ def check_invoice_in_db(excel_file: str):
 
     """
         Creating connection to the ismet table
-        Getting all rows from the excel with status 'Отклонён'
-        Fetching the invoice number for that status from the ismet table
+        Getting all rows from the ismet table with type(NUMBER_INVOICE) = string
         Creating new excel with only rows with status 'Отклонён'
     """
 
@@ -88,43 +87,44 @@ def check_invoice_in_db(excel_file: str):
     for ind, row in enumerate(select_query):
         if row.ID_INVOICE not in list(invoices.keys()):
 
-            invoices.update({row.ID_INVOICE: [row.NUMBER_INVOICE, row.C_NAME_SOURCE_INVOICE, row.DATE_INVOICE]})
+            invoices.update({row.ID_INVOICE: [row.NUMBER_INVOICE, row.C_NAME_SOURCE_INVOICE, row.edit_time]})
             # print(a.ID_INVOICE, a.NUMBER_INVOICE, a.DATE_INVOICE, sep=' | ')
-
-    for key, val in invoices.items():
-        print(key, val)
 
     # * Creating new Excel from rows with status 'Отклонён'
 
-    rows_to_copy = []
+    book = Workbook()
+    sheet = book.active
 
-    for row in range(2, sheet.max_row):
+    sheet['A1'].value = '№'
+    sheet['B1'].value = 'Дата'
+    sheet['C1'].value = 'Поставщик'
+    sheet['D1'].value = 'Код отклонения'
+    sheet['E1'].value = 'Причина отклонения'
 
-        if sheet[f'A{row}'].value is None:
-            break
+    last_row = sheet.max_row + 1
 
-        if sheet[f'D{row}'].value != 'Отклонён':
-            continue
-        found = False
-        for key, val in invoices.items():
-            # print(key, val)
-            if sheet[f'A{row}'].value == key:
-                sheet[f'H{row}'].value = val[0]
-                rows_to_copy.append(row)
-                found = True
-        if not found:
-            rows_to_copy.append(row)
+    for key, val in invoices.items():
+        print(key, val)
+        sheet[f'A{last_row}'].value = str(key)
+        sheet[f'B{last_row}'].value = val[2].strftime('%d.%m.%Y')
+        sheet[f'C{last_row}'].value = val[1]
+        sheet[f'D{last_row}'].value = val[0]
+        if val[0] == '!DECLINE FORCED':
+            sheet[f'E{last_row}'].value = 'Выявлены отклонения после ручной проверки'
+        if val[0] == '!DECLINE FOUND BUT INCORRECT QUANTITY':
+            sheet[f'E{last_row}'].value = 'Соответствие найдено, но количество позиции или позиций неверно'
+        if val[0] == '!DECLINE INVOICE NOT FOUND':
+            sheet[f'E{last_row}'].value = 'Нет соответствия в данных  за указанный период'
+        if val[0] == '!DECLINE SOURCE NOT FOUND':
+            sheet[f'E{last_row}'].value = 'Нет поставщика в данных Магнума за указанный период'
+        last_row += 1
 
-    print('deleting')
-    print(rows_to_copy)
-    book1 = Workbook()
-    sheet1 = book1.active
+    sheet.column_dimensions['B'].width = 15
+    sheet.column_dimensions['C'].width = 100
+    sheet.column_dimensions['D'].width = 30
+    sheet.column_dimensions['E'].width = 50
 
-    for ind, row in enumerate(rows_to_copy):
-        for letter in 'ABCDEFGH':
-            sheet1[f'{letter}{ind + 1}'].value = sheet[f'{letter}{row}'].value
-
-    book1.save('dsfsdffsfd.xlsx')
+    book.save('chuckus.xlsx')
 
     return invoices.keys()
 
