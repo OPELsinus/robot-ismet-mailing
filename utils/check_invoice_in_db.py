@@ -40,7 +40,7 @@ class IsmetTable(Base):
         return m
 
 
-def check_invoice_in_db(excel_file: str):
+def check_invoice_in_db():
 
     """
         Creating connection to the ismet table
@@ -87,7 +87,7 @@ def check_invoice_in_db(excel_file: str):
     for ind, row in enumerate(select_query):
         if row.ID_INVOICE not in list(invoices.keys()):
 
-            invoices.update({row.ID_INVOICE: [row.NUMBER_INVOICE, row.C_NAME_SOURCE_INVOICE, row.edit_time]})
+            invoices.update({row.ID_INVOICE: [row.NUMBER_INVOICE, row.C_NAME_SHOP, row.C_NAME_SOURCE_INVOICE, row.edit_time]})
             # print(a.ID_INVOICE, a.NUMBER_INVOICE, a.DATE_INVOICE, sep=' | ')
 
     # * Creating new Excel from rows with status 'Отклонён'
@@ -97,36 +97,41 @@ def check_invoice_in_db(excel_file: str):
 
     sheet['A1'].value = '№'
     sheet['B1'].value = 'Дата'
-    sheet['C1'].value = 'Поставщик'
-    sheet['D1'].value = 'Код отклонения'
-    sheet['E1'].value = 'Причина отклонения'
+    sheet['C1'].value = 'Филиал'
+    sheet['D1'].value = 'Поставщик'
+    sheet['E1'].value = 'Код отклонения'
+    sheet['F1'].value = 'Причина отклонения'
 
     last_row = sheet.max_row + 1
 
     for key, val in invoices.items():
         print(key, val)
         sheet[f'A{last_row}'].value = str(key)
-        sheet[f'B{last_row}'].value = val[2].strftime('%d.%m.%Y')
+        sheet[f'B{last_row}'].value = val[3].strftime('%d.%m.%Y')
         sheet[f'C{last_row}'].value = val[1]
-        sheet[f'D{last_row}'].value = val[0]
+        sheet[f'D{last_row}'].value = val[2]
+        sheet[f'E{last_row}'].value = val[0]
         if val[0] == '!DECLINE FORCED':
-            sheet[f'E{last_row}'].value = 'Выявлены отклонения после ручной проверки'
+            sheet[f'F{last_row}'].value = 'Выявлены отклонения после ручной проверки'
         if val[0] == '!DECLINE FOUND BUT INCORRECT QUANTITY':
-            sheet[f'E{last_row}'].value = 'Соответствие найдено, но количество позиции или позиций неверно'
+            sheet[f'F{last_row}'].value = 'Соответствие найдено, но количество позиции или позиций неверно'
         if val[0] == '!DECLINE INVOICE NOT FOUND':
-            sheet[f'E{last_row}'].value = 'Нет соответствия в данных  за указанный период'
+            sheet[f'F{last_row}'].value = 'Нет соответствия в данных  за указанный период'
         if val[0] == '!DECLINE SOURCE NOT FOUND':
-            sheet[f'E{last_row}'].value = 'Нет поставщика в данных Магнума за указанный период'
+            sheet[f'F{last_row}'].value = 'Нет поставщика в данных Магнума за указанный период'
         last_row += 1
 
     sheet.column_dimensions['B'].width = 15
-    sheet.column_dimensions['C'].width = 100
-    sheet.column_dimensions['D'].width = 30
-    sheet.column_dimensions['E'].width = 50
+    sheet.column_dimensions['C'].width = 25
+    sheet.column_dimensions['D'].width = 100
+    sheet.column_dimensions['E'].width = 30
+    sheet.column_dimensions['F'].width = 50
 
-    book.save('chuckus.xlsx')
+    excel_name = f"{datetime.date.today().strftime('%Y-%m-%d')}_ismet_рассылка.xlsx"
 
-    return invoices.keys()
+    book.save(excel_name)
+
+    return [excel_name, invoices]
 
 # if __name__ == '__main__':
 #

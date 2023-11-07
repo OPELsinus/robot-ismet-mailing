@@ -22,16 +22,14 @@ def get_all_emails():
     for row in range(2, mapping_sheet.max_row):
 
         sprut.open("Физические лица, юридические лица и производители")
-        print(1)
+
         sprut.find_element({"title": "", "class_name": "TvmsDBToolGrid", "control_type": "Pane",
                             "visible_only": True, "enabled_only": True, "found_index": 1}).click()
-        print(2)
         sprut.find_element({"title": "", "class_name": "TvmsDBToolGrid", "control_type": "Pane",
                             "visible_only": True, "enabled_only": True, "found_index": 1}).type_keys('^F')
-        print(3)
         sprut.parent_switch({"title": "Поиск", "class_name": "Tvms_search_fm_builder", "control_type": "Window",
                              "visible_only": True, "enabled_only": True, "found_index": 0}).set_focus()
-        print(4)
+
         # * Selecting 'Юридическое лицо'
 
         sprut.find_element({"title_re": ".", "class_name": "TvmsComboBox", "control_type": "Pane",
@@ -40,7 +38,7 @@ def get_all_emails():
                             "visible_only": True, "enabled_only": True, "found_index": 0}).type_keys(sprut.keys.UP * 15)
         sprut.find_element({"title_re": ".", "class_name": "TvmsComboBox", "control_type": "Pane",
                             "visible_only": True, "enabled_only": True, "found_index": 0}).type_keys(sprut.keys.DOWN * 3, sprut.keys.ENTER)
-        print(5)
+
         # * Searching for the company
 
         sprut.find_element({"title": "", "class_name": "TcxCustomInnerTextEdit", "control_type": "Edit",
@@ -88,4 +86,8 @@ def get_all_emails():
 
         print('Finished')
 
+    sprut.quit()
+
     return emails
+
+

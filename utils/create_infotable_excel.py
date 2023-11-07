@@ -10,6 +10,8 @@ from config import main_folder
 
 def create_infotable_excel(excel_file: str):
 
+    # * Getting count of rows for each supplier
+
     df = pd.read_excel(excel_file)
 
     print(df['Поставщик'].unique())
@@ -20,8 +22,10 @@ def create_infotable_excel(excel_file: str):
         print(supplier, len(df[df['Поставщик'] == supplier]))
         suppliers.update({supplier: len(df[df['Поставщик'] == supplier])})
 
-    book = Workbook()
-    sheet = book.active
+    # * Creating info table on the new sheet
+
+    book = load_workbook(excel_file)
+    sheet = book.create_sheet('Infotable')
 
     for row, vals in enumerate(suppliers.items()):
 
@@ -32,6 +36,8 @@ def create_infotable_excel(excel_file: str):
     sheet[f'B1'].value = 'Отклонён'
     sheet[f'A1'].font = Font(bold=True)
     sheet[f'B1'].font = Font(bold=True)
+
+    # * Designing the sheet
 
     sheet[f'A{len(suppliers) + 2}'].value = 'Общий итог'
     sheet[f'B{len(suppliers) + 2}'].value = sum([i for i in suppliers.values()])

@@ -1,6 +1,7 @@
 import datetime
 
-from config import logger, engine_kwargs, robot_name
+from config import logger, engine_kwargs, robot_name, smtp_host, smtp_author
+from tools.smtp import smtp_send
 from utils.check_if_excel_good import get_last_excel
 from utils.check_invoice_in_db import check_invoice_in_db
 from utils.create_infotable_excel import create_infotable_excel
@@ -8,6 +9,7 @@ from utils.create_infotable_excel import create_infotable_excel
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, MetaData, Table, Date, Boolean, select
 from sqlalchemy.orm import declarative_base, sessionmaker
 
+from utils.divide import divide_excel_by_suppliers
 from utils.get_all_emails_sprut import get_all_emails
 
 Base = declarative_base()
@@ -16,11 +18,10 @@ Base = declarative_base()
 class Table(Base):
     __tablename__ = robot_name.replace('-', '_')
 
-    file_path = Column(String(512), primary_key=True)
     date_created = Column(Date, default=None)
-
-    id_invoice = Column(String(512), default=None)
+    id_invoice = Column(String(512), primary_key=True)
     reason_invoice = Column(String(512), default=None)
+    store_name = Column(String(512), default=None)
     supplier_name = Column(String(512), default=None)
 
     status = Column(String(16), default=None)
@@ -33,15 +34,8 @@ class Table(Base):
 
 if __name__ == '__main__':
 
-    get_last_excel()
-    # create_infotable_excel('chuckus.xlsx')
-    # exit()
-    # # open_last_excel()
-    #
-    # emails = get_all_emails()
-    # for key, val in emails.items():
-    #     print(key, val)
-    # exit()
+    # get_last_excel()
+
     Session = sessionmaker()
 
     engine = create_engine(
@@ -52,22 +46,31 @@ if __name__ == '__main__':
     Session.configure(bind=engine)
     session = Session()
 
-    # select_query = session.query(Table).all()
-    #
-    # for a in select_query:
-    #     print(a.file_path)
+    excel_file, invoices = check_invoice_in_db()
 
-    # keys = check_invoice_in_db(r'C:\Users\Abdykarim.D\Documents\2023-09-07_ismet.xlsx')
+    for key, val in invoices.items():
+        print(key, val)
+        session.add(Table(
+            date_created=datetime.datetime.now(),
+            id_invoice=key,
+            reason_invoice=val[0],
+            store_name=val[1],
+            supplier_name=val[2],
+            status='new'
+        ))
+    session.commit()
 
-    # for val in keys:
-    #     session.add(Table(
-    #         date_created=datetime.datetime.now(),
-    #         file_path=val,
-    #         id_invoice='KEKUS',
-    #         reason_invoice='LOOL',
-    #         supplier_name='DEALER'
-    #     ))
-    # session.commit()
+    suppliers_excels = divide_excel_by_suppliers(excel_file)
 
-    create_infotable_excel('chuckus.xlsx')
+    create_infotable_excel(excel_file)
 
+    emails = get_all_emails()
+
+    print(emails)
+    for key, emails_ in emails.items():
+        print('----------')
+        print(key)
+        emls = []
+        print(f"smtp_send('assdf', url=smtp_host, to={[email.strip() for email in emails_.split(',')]}, subject=f'Исмет Рассылка Тест', username=smtp_author)")
+
+    # smtp_send('assdf', url=smtp_host, to=['Abdykarim.D@magnum.kz'], subject=f'Исмет Рассылка Тест', username=smtp_author)

@@ -85,6 +85,8 @@ saving_path_1c = global_path.joinpath(f".agent\\{robot_name}\\Output\\Выгру
 saving_path_1c.mkdir(exist_ok=True, parents=True)
 
 download_path = Path.home().joinpath('downloads')
+working_path = root_path.joinpath('working_path')
+working_path.mkdir(exist_ok=True, parents=True)
 
 engine_kwargs = {
     'username': global_env_data['postgre_db_username'],
