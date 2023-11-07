@@ -32,7 +32,7 @@ def divide_excel_by_suppliers(excel_file: str):
 
         sheet.column_dimensions['B'].width = 15
         sheet.column_dimensions['C'].width = 25
-        sheet.column_dimensions['D'].width = len(df[df['Поставщик'] == supplier]['Поставщик'])
+        sheet.column_dimensions['D'].width = len(df[df['Поставщик'] == supplier]['Поставщик'].iloc[0]) * 1.15
         sheet.column_dimensions['E'].width = 30
         sheet.column_dimensions['F'].width = 50
 

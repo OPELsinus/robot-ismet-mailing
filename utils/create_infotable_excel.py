@@ -25,7 +25,7 @@ def create_infotable_excel(excel_file: str):
     # * Creating info table on the new sheet
 
     book = load_workbook(excel_file)
-    sheet = book.create_sheet('Infotable')
+    sheet = book.create_sheet('Сводная таблица')
 
     for row, vals in enumerate(suppliers.items()):
 
@@ -55,6 +55,6 @@ def create_infotable_excel(excel_file: str):
     sheet[f'A{len(suppliers) + 2}'].fill = fill_color
     sheet[f'B{len(suppliers) + 2}'].fill = fill_color
 
-    book.save('Infotable.xlsx')
+    book.save(excel_file)
 
 

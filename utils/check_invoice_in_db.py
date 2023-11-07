@@ -71,12 +71,16 @@ def check_invoice_in_db():
 
     # * Getting all rows with status 'Отклонён'
 
-    from_date = datetime.date(2023, 10, 23)
+    today = datetime.date(2023, 10, 23) # datetime.date.today()
+    from_date = today - datetime.timedelta(days=7)
+    print('KKK!', today, from_date)
     condition = IsmetTable.edit_time >= from_date
+    condition1 = IsmetTable.edit_time <= today
 
     select_query = (
         session_ismet.query(IsmetTable)
         .filter(condition)
+        .filter(condition1)
         .filter(IsmetTable.NUMBER_INVOICE.like('!%'))
         .all()
     )
@@ -113,12 +117,12 @@ def check_invoice_in_db():
         sheet[f'E{last_row}'].value = val[0]
         if val[0] == '!DECLINE FORCED':
             sheet[f'F{last_row}'].value = 'Выявлены отклонения после ручной проверки'
-        if val[0] == '!DECLINE FOUND BUT INCORRECT QUANTITY':
-            sheet[f'F{last_row}'].value = 'Соответствие найдено, но количество позиции или позиций неверно'
         if val[0] == '!DECLINE INVOICE NOT FOUND':
             sheet[f'F{last_row}'].value = 'Нет соответствия в данных  за указанный период'
         if val[0] == '!DECLINE SOURCE NOT FOUND':
             sheet[f'F{last_row}'].value = 'Нет поставщика в данных Магнума за указанный период'
+        if val[0] == '!DECLINE FOUND BUT INCORRECT QUANTITY':
+            sheet[f'F{last_row}'].value = 'Соответствие найдено, но количество позиции или позиций неверно'
         last_row += 1
 
     sheet.column_dimensions['B'].width = 15
@@ -127,7 +131,7 @@ def check_invoice_in_db():
     sheet.column_dimensions['E'].width = 30
     sheet.column_dimensions['F'].width = 50
 
-    excel_name = f"{datetime.date.today().strftime('%Y-%m-%d')}_ismet_рассылка.xlsx"
+    excel_name = f"{today.strftime('%Y-%m-%d')}_ismet_рассылка.xlsx"
 
     book.save(excel_name)
 

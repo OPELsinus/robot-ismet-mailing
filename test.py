@@ -23,5 +23,5 @@ for key, emails_ in emails.items():
     print('----------')
     print(key)
     emls = []
-    print(f"to={[email.strip() for email in emails_.split(',')]}, subject=f'Исмет Рассылка Тест', username=smtp_author)")
+    print(f"to={[email for email in emails_.split(',')]}, subject=f'Исмет Рассылка Тест', username=smtp_author)")
 
