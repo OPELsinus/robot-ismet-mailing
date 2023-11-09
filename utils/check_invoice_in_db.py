@@ -71,7 +71,7 @@ def check_invoice_in_db():
 
     # * Getting all rows with status 'Отклонён'
 
-    today = datetime.date(2023, 10, 23) # datetime.date.today()
+    today = datetime.date(2023, 11, 6) # datetime.date.today()
     from_date = today - datetime.timedelta(days=7)
     print('KKK!', today, from_date)
     condition = IsmetTable.edit_time >= from_date

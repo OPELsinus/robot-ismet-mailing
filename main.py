@@ -1,4 +1,5 @@
 import datetime
+from time import sleep
 
 from openpyxl import load_workbook
 
@@ -68,8 +69,10 @@ if __name__ == '__main__':
 
     create_infotable_excel(excel_file)
 
-    emails = get_all_emails(suppliers_excels.keys())
+    # emails = get_all_emails(suppliers_excels.keys())
     # emails = {'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ALMA TRADE DISTRIBUTION"': 'fortisline.elnar@mail.ru, uchet.fortis@mail.ru, akty.almatrade@gmail.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "FORTIS SKO"': 'rogacheva.1981@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "DITRADE KRG"': 'ditradekaraganda@mail.ru, ditradekrg@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ТОРГОВАЯ КОМПАНИЯ "МЕГАПОЛИС-КАЗАХСТАН"': 'zemlyanukhin.daniil@gkm-kz.com, nikolai_kireev_89@mail.ru, megapolis_kam@mail.ru, megapolis.redbull@gmail.com, chshepkin@gkm-kz.com, golovin.sanya.71@gmail.com, shaihiev.i@outlook.com, TKmegapolis.zakaz@gkm-kz.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "CITY TRADE AST"': 'ast_city_trade@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "KAZNORD"': 'buh3009@mail.ru'}
+    emails = {'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ALMA TRADE DISTRIBUTION"': 'fortisline.elnar@mail.ru, uchet.fortis@mail.ru, akty.almatrade@gmail.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "FORTIS SKO"': 'rogacheva.1981@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "DITRADE KRG"': 'ditradekaraganda@mail.ru, ditradekrg@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ТОРГОВАЯ КОМПАНИЯ "МЕГАПОЛИС-КАЗАХСТАН"': 'zemlyanukhin.daniil@gkm-kz.com, nikolai_kireev_89@mail.ru, megapolis_kam@mail.ru, megapolis.redbull@gmail.com, chshepkin@gkm-kz.com, golovin.sanya.71@gmail.com, shaihiev.i@outlook.com, TKmegapolis.zakaz@gkm-kz.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "KAZNORD"': 'buh3009@mail.ru'}
+
     print(emails)
 
     infotable = load_workbook(excel_file)
@@ -90,12 +93,17 @@ if __name__ == '__main__':
 
         try:
             attachment = suppliers_excels.get(key)
+            print(attachment)
+            smtp_send(f'Рассылка для {key}', url=smtp_host, to=['Abdykarim.D@magnum.kz', 'Novitskaya@magnum.kz', 'Begaidarov@magnum.kz', 'Mukhtarova@magnum.kz'], subject=f'Исмет Рассылка Тест - {key}', username=smtp_author, attachments=[attachment])
             print(f"smtp_send('assdf', url=smtp_host, to={[email.strip() for email in emails_.split(',')]}, subject=f'Исмет Рассылка Тест', username=smtp_author)")
             info_sheet[f'C{row}'].value = 'Успешно отправлено'
         except Exception as error:
+            print('ERROR', key)
             info_sheet[f'C{row}'].value = f'Ошибка при отправке - {error}'
 
     infotable.save(excel_file)
+    sleep(10)
+    smtp_send(f'Excel файл для Исмет Рассылки', url=smtp_host, to=['Abdykarim.D@magnum.kz', 'Novitskaya@magnum.kz', 'Begaidarov@magnum.kz', 'Mukhtarova@magnum.kz'], subject=f'Исмет Рассылка Тест', username=smtp_author, attachments=[excel_file])
 
     # smtp_send('assdf', url=smtp_host, to=['Abdykarim.D@magnum.kz'], subject=f'Исмет Рассылка Тест', username=smtp_author)
 
