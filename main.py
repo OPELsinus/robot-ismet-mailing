@@ -51,29 +51,29 @@ if __name__ == '__main__':
 
     excel_file, invoices = check_invoice_in_db()
     print(invoices)
-    # for key, val in invoices.items():
-    #     # print(key, val)
-    #     # print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), val[3])
-    #     session.add(Table(
-    #         date_created=datetime.datetime.now(),
-    #         invoice_date=val[3],
-    #         id_invoice=key,
-    #         reason_invoice=val[0],
-    #         store_name=val[1],
-    #         supplier_name=val[2],
-    #         status='new'
-    #     ))
-    # session.commit()
+    for key, val in invoices.items():
+        # print(key, val)
+        # print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), val[3])
+        session.add(Table(
+            date_created=datetime.datetime.now(),
+            invoice_date=val[3],
+            id_invoice=key,
+            reason_invoice=val[0],
+            store_name=val[1],
+            supplier_name=val[2],
+            status='new'
+        ))
+    session.commit()
 
     suppliers_excels: dict = divide_excel_by_suppliers(excel_file)
 
     create_infotable_excel(excel_file)
 
-    # emails = get_all_emails(suppliers_excels.keys())
+    emails = get_all_emails(suppliers_excels.keys())
     # emails = {'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ALMA TRADE DISTRIBUTION"': 'fortisline.elnar@mail.ru, uchet.fortis@mail.ru, akty.almatrade@gmail.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "FORTIS SKO"': 'rogacheva.1981@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "DITRADE KRG"': 'ditradekaraganda@mail.ru, ditradekrg@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ТОРГОВАЯ КОМПАНИЯ "МЕГАПОЛИС-КАЗАХСТАН"': 'zemlyanukhin.daniil@gkm-kz.com, nikolai_kireev_89@mail.ru, megapolis_kam@mail.ru, megapolis.redbull@gmail.com, chshepkin@gkm-kz.com, golovin.sanya.71@gmail.com, shaihiev.i@outlook.com, TKmegapolis.zakaz@gkm-kz.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "CITY TRADE AST"': 'ast_city_trade@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "KAZNORD"': 'buh3009@mail.ru'}
-    emails = {'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ALMA TRADE DISTRIBUTION"': 'fortisline.elnar@mail.ru, uchet.fortis@mail.ru, akty.almatrade@gmail.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "FORTIS SKO"': 'rogacheva.1981@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "DITRADE KRG"': 'ditradekaraganda@mail.ru, ditradekrg@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ТОРГОВАЯ КОМПАНИЯ "МЕГАПОЛИС-КАЗАХСТАН"': 'zemlyanukhin.daniil@gkm-kz.com, nikolai_kireev_89@mail.ru, megapolis_kam@mail.ru, megapolis.redbull@gmail.com, chshepkin@gkm-kz.com, golovin.sanya.71@gmail.com, shaihiev.i@outlook.com, TKmegapolis.zakaz@gkm-kz.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "KAZNORD"': 'buh3009@mail.ru'}
+    # emails = {'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ALMA TRADE DISTRIBUTION"': 'fortisline.elnar@mail.ru, uchet.fortis@mail.ru, akty.almatrade@gmail.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "FORTIS SKO"': 'rogacheva.1981@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "DITRADE KRG"': 'ditradekaraganda@mail.ru, ditradekrg@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ТОРГОВАЯ КОМПАНИЯ "МЕГАПОЛИС-КАЗАХСТАН"': 'zemlyanukhin.daniil@gkm-kz.com, nikolai_kireev_89@mail.ru, megapolis_kam@mail.ru, megapolis.redbull@gmail.com, chshepkin@gkm-kz.com, golovin.sanya.71@gmail.com, shaihiev.i@outlook.com, TKmegapolis.zakaz@gkm-kz.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "KAZNORD"': 'buh3009@mail.ru'}
 
-    print(emails)
+    print('emails:', emails)
 
     infotable = load_workbook(excel_file)
     info_sheet = infotable['Сводная таблица']
