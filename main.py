@@ -1,4 +1,5 @@
 import datetime
+import traceback
 from time import sleep
 
 from openpyxl import load_workbook
@@ -39,73 +40,89 @@ class Table(Base):
 
 if __name__ == '__main__':
 
-    Session = sessionmaker()
+    try:
 
-    engine = create_engine(
-        'postgresql+psycopg2://{username}:{password}@{host}:{port}/{base}'.format(**engine_kwargs),
-        connect_args={'options': '-csearch_path=robot'}
-    )
-    Base.metadata.create_all(bind=engine)
-    Session.configure(bind=engine)
-    session = Session()
+        Session = sessionmaker()
 
-    excel_file, invoices = check_invoice_in_db()
-    print(invoices)
-    for key, val in invoices.items():
-        # print(key, val)
-        # print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), val[3])
-        session.add(Table(
-            date_created=datetime.datetime.now(),
-            invoice_date=val[3],
-            id_invoice=key,
-            reason_invoice=val[0],
-            store_name=val[1],
-            supplier_name=val[2],
-            status='new'
-        ))
-    session.commit()
+        engine = create_engine(
+            'postgresql+psycopg2://{username}:{password}@{host}:{port}/{base}'.format(**engine_kwargs),
+            connect_args={'options': '-csearch_path=robot'}
+        )
+        Base.metadata.create_all(bind=engine)
+        Session.configure(bind=engine)
+        session = Session()
 
-    suppliers_excels: dict = divide_excel_by_suppliers(excel_file)
+        excel_file, invoices = check_invoice_in_db()
+        print(invoices)
+        for key, val in invoices.items():
+            try:
+                # print(key, val)
+                # print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), val[3])
+                session.add(Table(
+                    date_created=datetime.datetime.now(),
+                    invoice_date=val[3],
+                    id_invoice=key,
+                    reason_invoice=val[0],
+                    store_name=val[1],
+                    supplier_name=val[2],
+                    status='new'
+                ))
 
-    create_infotable_excel(excel_file)
+            except Exception:
+                logger.warning(f'Row already in db: {key} | {val}')
+        session.commit()
 
-    emails = get_all_emails(suppliers_excels.keys())
-    # emails = {'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ALMA TRADE DISTRIBUTION"': 'fortisline.elnar@mail.ru, uchet.fortis@mail.ru, akty.almatrade@gmail.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "FORTIS SKO"': 'rogacheva.1981@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "DITRADE KRG"': 'ditradekaraganda@mail.ru, ditradekrg@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ТОРГОВАЯ КОМПАНИЯ "МЕГАПОЛИС-КАЗАХСТАН"': 'zemlyanukhin.daniil@gkm-kz.com, nikolai_kireev_89@mail.ru, megapolis_kam@mail.ru, megapolis.redbull@gmail.com, chshepkin@gkm-kz.com, golovin.sanya.71@gmail.com, shaihiev.i@outlook.com, TKmegapolis.zakaz@gkm-kz.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "CITY TRADE AST"': 'ast_city_trade@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "KAZNORD"': 'buh3009@mail.ru'}
-    # emails = {'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ALMA TRADE DISTRIBUTION"': 'fortisline.elnar@mail.ru, uchet.fortis@mail.ru, akty.almatrade@gmail.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "FORTIS SKO"': 'rogacheva.1981@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "DITRADE KRG"': 'ditradekaraganda@mail.ru, ditradekrg@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ТОРГОВАЯ КОМПАНИЯ "МЕГАПОЛИС-КАЗАХСТАН"': 'zemlyanukhin.daniil@gkm-kz.com, nikolai_kireev_89@mail.ru, megapolis_kam@mail.ru, megapolis.redbull@gmail.com, chshepkin@gkm-kz.com, golovin.sanya.71@gmail.com, shaihiev.i@outlook.com, TKmegapolis.zakaz@gkm-kz.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "KAZNORD"': 'buh3009@mail.ru'}
+        suppliers_excels: dict = divide_excel_by_suppliers(excel_file)
 
-    print('emails:', emails)
+        create_infotable_excel(excel_file)
 
-    infotable = load_workbook(excel_file)
-    info_sheet = infotable['Сводная таблица']
+        emails = get_all_emails(suppliers_excels.keys())
+        # emails = {'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ALMA TRADE DISTRIBUTION"': 'fortisline.elnar@mail.ru, uchet.fortis@mail.ru, akty.almatrade@gmail.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "ТОРГОВАЯ КОМПАНИЯ "МЕГАПОЛИС-КАЗАХСТАН"': 'nikolai_kireev_89@mail.ru, megapolis_kam@mail.ru, megapolis.redbull@gmail.com, chshepkin@gkm-kz.com, golovin.sanya.71@gmail.com, shaihiev.i@outlook.com, TKmegapolis.zakaz@gkm-kz.com, nurgaliyev.oraz@gkm-kz.com, skripak.polina@gkm-kz.com', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "CITY TRADE AST"': 'ast_city_trade@mail.ru', 'ТОВАРИЩЕСТВО С ОГРАНИЧЕННОЙ ОТВЕТСТВЕННОСТЬЮ "KAZNORD"': 'buh3009@mail.ru'}
+        print('emails:', emails)
 
-    for key, emails_ in emails.items():
-        print('----------')
-        print(key, suppliers_excels.get(key))
-        emls = []
+        infotable = load_workbook(excel_file)
+        info_sheet = infotable['Сводная таблица']
 
-        row = None
+        for key, emails_ in emails.items():
+            print('----------')
+            print('#1', key, emails_, suppliers_excels.get(key))
+            emls = []
 
-        for i in range(2, info_sheet.max_row):
-            print(info_sheet[f'A{i}'].value, key, info_sheet[f'A{i}'].value == key)
-            if info_sheet[f'A{i}'].value == key:
-                row = i
-                break
+            row = None
 
-        try:
-            attachment = suppliers_excels.get(key)
-            print(attachment)
-            smtp_send(f'Рассылка для {key}', url=smtp_host, to=['Abdykarim.D@magnum.kz', 'Novitskaya@magnum.kz', 'Begaidarov@magnum.kz', 'Mukhtarova@magnum.kz'], subject=f'Исмет Рассылка Тест - {key}', username=smtp_author, attachments=[attachment])
-            print(f"smtp_send('assdf', url=smtp_host, to={[email.strip() for email in emails_.split(',')]}, subject=f'Исмет Рассылка Тест', username=smtp_author)")
-            info_sheet[f'C{row}'].value = 'Успешно отправлено'
-        except Exception as error:
-            print('ERROR', key)
-            info_sheet[f'C{row}'].value = f'Ошибка при отправке - {error}'
+            for i in range(2, info_sheet.max_row):
+                print(info_sheet[f'A{i}'].value, key, info_sheet[f'A{i}'].value == key)
+                if info_sheet[f'A{i}'].value == key:
+                    row = i
+                    break
 
-    infotable.save(excel_file)
-    sleep(10)
-    smtp_send(f'Excel файл для Исмет Рассылки', url=smtp_host, to=['Abdykarim.D@magnum.kz', 'Novitskaya@magnum.kz', 'Begaidarov@magnum.kz', 'Mukhtarova@magnum.kz'], subject=f'Исмет Рассылка Тест', username=smtp_author, attachments=[excel_file])
+            try:
+                attachment = suppliers_excels.get(key)
+                print(attachment)
+                smtp_send(f'''
+    Уважаемые партнеры, ТОО «Magnum Cash&Carry» высылает вам информацию с расшифровкой причин по отклоненным документам актов маркировки на сайте ИС МПТ.
+    Данное письмо сформировано автоматически, направленная в ответ информация не обрабатывается.
+    При возникновении дополнительных вопросов, просим вас обращаться к менеджерам
+    ''', url=smtp_host, to=[email.strip() for email in emails_.split(',')], subject=f'Исмет Рассылка - {key}', username=smtp_author, attachments=[attachment])
+                smtp_send(f'''
+    Уважаемые партнеры, ТОО «Magnum Cash&Carry» высылает вам информацию с расшифровкой причин по отклоненным документам актов маркировки на сайте ИС МПТ.
+    Данное письмо сформировано автоматически, направленная в ответ информация не обрабатывается.
+    При возникновении дополнительных вопросов, просим вас обращаться к менеджерам
+    ''', url=smtp_host, to=['Abdykarim.D@magnum.kz'], subject=f'Исмет Рассылка - {key}', username=smtp_author, attachments=[attachment])
 
-    # smtp_send('assdf', url=smtp_host, to=['Abdykarim.D@magnum.kz'], subject=f'Исмет Рассылка Тест', username=smtp_author)
+                print(f"smtp_send('assdf', url=smtp_host, to={[email.strip() for email in emails_.split(',')]}, subject=f'Исмет Рассылка', username=smtp_author)")
+                info_sheet[f'C{row}'].value = 'Успешно отправлено'
+            except Exception as error:
+                print('ERROR', key)
+                info_sheet[f'C{row}'].value = f'Ошибка при отправке - {error}'
 
+        infotable.save(excel_file)
+        sleep(10)
+        smtp_send(f'Общий Excel файл для Исмет Рассылки', url=smtp_host, to=['Abdykarim.D@magnum.kz', 'Novitskaya@magnum.kz', 'Begaidarov@magnum.kz', 'Mukhtarova@magnum.kz'], subject=f'Исмет Рассылка', username=smtp_author, attachments=[excel_file])
 
+        # smtp_send('assdf', url=smtp_host, to=['Abdykarim.D@magnum.kz'], subject=f'Исмет Рассылка Тест', username=smtp_author)
+
+    except Exception as error:
+        logger.warning(f'Error occured: {error}')
+        traceback.print_exc()
 

@@ -36,6 +36,10 @@ def divide_excel_by_suppliers(excel_file: str):
         sheet.column_dimensions['E'].width = 30
         sheet.column_dimensions['F'].width = 50
 
+        column_index = sheet['E'][0].column
+
+        sheet.delete_cols(column_index)
+
         book.save(os.path.join(working_path, supplier.replace('"', '') + '.xlsx'))
 
         suppliers.update({supplier: os.path.join(working_path, supplier.replace('"', '') + '.xlsx')})
