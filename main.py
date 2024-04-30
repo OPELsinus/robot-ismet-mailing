@@ -68,9 +68,10 @@ if __name__ == '__main__':
                     status='new'
                 ))
 
+                session.commit()
+
             except Exception:
                 logger.warning(f'Row already in db: {key} | {val}')
-        session.commit()
 
         suppliers_excels: dict = divide_excel_by_suppliers(excel_file)
 
@@ -123,6 +124,6 @@ if __name__ == '__main__':
         # smtp_send('assdf', url=smtp_host, to=['Abdykarim.D@magnum.kz'], subject=f'Исмет Рассылка Тест', username=smtp_author)
 
     except Exception as error:
-        logger.warning(f'Error occured: {error}')
         traceback.print_exc()
+        logger.warning(f'Error occured: {error}')
 

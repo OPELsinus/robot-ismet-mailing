@@ -46,7 +46,11 @@ def create_infotable_excel(excel_file: str):
 
     fill_color = PatternFill(start_color="00CCCCFF", end_color="00CCCCFF", fill_type="solid")
 
-    sheet.column_dimensions['A'].width = max([len(i) for i in suppliers.keys()]) * 1.15
+    try:
+        sheet.column_dimensions['A'].width = max([len(i) for i in suppliers.keys()]) * 1.15
+    except:
+        sheet.column_dimensions['A'].width = 15
+
     sheet.column_dimensions['B'].width = 15
     sheet['B1'].alignment = Alignment(horizontal='center')
 

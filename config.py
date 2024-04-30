@@ -65,13 +65,13 @@ postgre_port = global_env_data['postgre_port']
 
 # ? PROJECT
 robot_name = 'robot-ismet-mailing'  # ! FIXME
-chat_id = ''  # ! FIXME
 
 project_path = global_path.joinpath(f'.agent').joinpath(robot_name).joinpath(get_hostname())
 project_path.mkdir(exist_ok=True, parents=True)
 config_path = project_path.joinpath('config.json')
 
-config_path = local_path.joinpath(f'.agent\\{robot_name}\\config.json')
+# config_path = global_path.joinpath(f'.agent\\{robot_name}\\config.json')
+print(config_path)
 config_data = json_read(config_path)
 chat_id = config_data['chat_id']
 main_folder = config_data['main_folder']
